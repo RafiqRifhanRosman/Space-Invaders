@@ -1,6 +1,6 @@
 # Space-Invaders
 
-This code allows you to create a basic version of the classic game Space Invaders, I'm currently working to imporve the game further, but with this code it would give you an idea how the game can be created. Please note that the code was written on a Mac, so maybe the format to input audio files may not work on Windows. Before we begin with anything, if you are running python 3.6 and above, please include this in your code (at the end), so that the game screen will not just appear for a short time and will continue to appear until the user presses enter:
+This code allows you to create a basic version of the classic game Space Invaders, I'm currently working to improve the game further, but with this code it would give you an idea how the game can be created. Please note that the code was written on a Mac, so maybe the format to input audio files may not work on Windows. Before we begin with anything, if you are running python 3.6 and above, please include this in your code (at the end), so that the game screen will not just appear for a short time and will continue to appear until the user presses enter:
 
     wn.mainloop() #using the delay might crash python 3.6 and above 
 
