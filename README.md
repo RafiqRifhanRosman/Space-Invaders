@@ -1,6 +1,6 @@
 # Space-Invaders
 
-This code allows you to create a basic version of the classic game Space Invaders, I'm currently working to improve the game further, but with this code it would give you an idea how the game can be created. Please note that the code was written on a Mac, so maybe the format to input audio files may not work on Windows. Before we begin with anything, if you are running python 3.6 and above, please include this in your code (at the end), so that the game screen will not just appear for a short time and will continue to appear until the user presses enter:
+This code allows you to create a basic version of the classic game Space Invaders, I'm currently working to improve the game further to make it as close as possible to the actual game, but with this code it would give you an idea how the game can be created. Please note that the code was written on a Mac, so maybe the format to input audio files may not work on Windows. Before we begin with anything, if you are running python 3.6 and above, please include this in your code (at the end), so that the game screen will not just appear for a short time and will continue to appear until the user presses enter:
 
     wn.mainloop() #using the delay might crash python 3.6 and above 
 
@@ -260,6 +260,211 @@ At the first part of the code, it takes the current value of x, subtracts player
     if bullet.ycor() > 275 :
         bullet.hideturtle ()
         bulletstate = "ready" 
+        
+        
+        
+Up till here, the game is good to go, but it will not be as exciting yet. So from here, I'm adding features such as invaders firing at the player, mothership or the mystery ship appearing and updating the number of lives when the player gets hit.
+
+14) Creating the enemy's bullet: 
+
+        #Createthe enemy's bullet
+
+        enemy_bullet = turtle.Turtle()
+        enemy_bullet.color("Red")
+        enemy_bullet.shape ("square")
+        enemy_bullet.penup()
+        enemy_bullet.speed(0)
+        enemy_bullet.setheading(-90)
+        enemy_bullet.shapesize(0.1,1.0)
+        enemy_bullet.hideturtle() # hide the bullet at first
+        enemy_bulletspeed = 8
+        
+        #Define enemy_bulletstate
+        enemy_bulletstate = "ready"
+Just like creating the bullet for the player, the same idea applies, in this case you can change the colour of the bullet to differentiate the bullets.
+
+15) Defining the enemy_bullet():
+
+        def fire_enemybullet():
+            global enemy_bulletstate 
+            if enemy_bulletstate == "ready":
+                enemy_bulletstate = "fire"
+                x = enemy.xcor()
+                y = enemy.ycor() -15  #because we want to put the bullet below the enemy 
+                enemy_bullet.setposition (x, y)
+                enemy_bullet.showturtle ()
+            
+We also need to define a function for the enemy_bullet so that it can be placed below the invader when it is ready. Note that in this function, instead of +15, we are going to put it at -15 because we want the bullet to be ready and placed at the bottom of the invader. The function fire_enemybullet() is called at the beginning of the for loop: for enemy in enemies.
+
+
+16) For the bullet to travel downwards, we need to add the following statements to the the main game loop. Under, the while loop, under for enemy in enemies loop: 
+
+        if enemy_bulletstate == "fire":
+                    y = enemy_bullet.ycor()
+                    y -= enemy_bulletspeed 
+                    enemy_bullet.sety(y)
+        
+        if enemy_bullet.ycor() < -275:
+            enemy_bullet.hideturtle ()
+            enemy_bulletstate = "ready"
+
+The idea works exactly the same as the the player bullet but we need to make some adjustments such as instead of incrementing y, we need to decrement it so that it travels downwards. And instead of setting the condition to +275 we change it to  "if enemy_bullet.ycor() < -275" because the bullet is going downwards to negative y coordinate and we need to reset it at y coordinate = -275
+
+16) Creating lives: 
+
+        #Set the number of lives
+        number_lives = 5
+
+        #Making lives 
+
+        lives = []
+
+        for i in range (number_lives):
+            lives.append(turtle.Turtle)
+
+        xpos = -280
+
+        for live in lives:
+
+            live = turtle.Turtle()
+            live.speed(0)
+            live.shape("lives.gif")
+            live.shapesize(100,100)
+            live.penup()
+            y = -280
+            live.setposition(xpos, y)
+            xpos += 40
+            
+Same idea as creating enemies applies when creating the lives where lives is made into a list and in the list are a bunch of live. The initial xpos (x coordinate position) is set to -280 because we want to the lives to appear at the bottom-left section of the game screen. So as it creates each of the live, xpos is incremented so that the live that is created will not overlap with the previous live created. 
+
+17) Changing the red hearts/ lives when the enemy bullet hits the player: 
+We are going to use a new shape for this, and I'm using a black version of the lives that we have created. So, we have to once again register this new shape or the code will not be able to use it.
+                
+    turtle.register_shape ("lives2.gif")
+
+We are going to create the black hearts when the enemy_bullet collides with the player. So we have to check for collision between the enemy_bullet and the player beforehand. And to this, we have to call the isCollision function. 
+
+    if isCollision (enemy_bullet, player) :
+                #Reset the bullet 
+                enemy_bullet.hideturtle()
+                enemy_bulletstate = "ready" 
+                enemy_bullet.setposition (0, -400) #moves the bullet down so that we dont have any positive collisions 
+                os.system ("afplay explosion.mp3&") #without & the program will pause 
+               
+               #Reset the player:
+                player.setposition (0, -250) #resets the player at the middle section of the bottom part of the screen 
+
+                lives.clear() #because we don't want to keep adding turtles 
+                for i in range (number_lives):
+                    lives.append(turtle.Turtle)
+
+                xlives = -280
+
+                for live in lives:
+
+                    live = turtle.Turtle()
+                    live.penup()
+                    live.speed(0)
+                    live.shape("lives2.gif")
+                    live.shapesize(100,100)
+                    y = -280
+                    live.setposition(xlives,y)
+                    xlives += 40
+                    live.hideturtle() #The turtles are actually overlapping
+                    #on top of one another but we won't see it because they are hidden
+
+
+                number_lives -= 1 #the number of turtles we want to create gets smaller in number 
+                live.showturtle() #of all the black hearts overlapping, the last one in the list of lives will be shown each time 
+
+We can see that when the enemy_bullet hits the player, the player is reset to the bottom-middle section of the game screen. We then use the same lives list and number_lives variable to create the black hearts/lives. Since the lives list was initially occupied by the live turtles, we need to clear it for the black hearts to be appended. The black hearts are created in a similar manner as the lives. The only difference is that each time the enemy_bullet collides with the player, the black hearts are created but hidden and only the last black heart in the lives list will be shown. The black heart is actually overlapping the previous live turtle, and for each collision, each of the live turtles created earlier in the program will be overlapped by a black heart. This effect is to show that the player has lost a life when the enemy_bullet hits the player. 
+
+18) Adding the mystery ship or the mothership. Just like in the actual space invaders, the mystery ship will appear at some point of time. Since this the game is at its developing stage, I am only going to make the mystery ship appear when the player achieve a certain score. So, similar to the other turtles we have created, we have to register the shape that we want to use. 
+
+        turtle.register_shape ("mothership.gif")
+ 
+19) Creating the mothership: 
+
+        #Creating the mothership
+        
+        mothership = turtle.Turtle()
+        mothership.color("red")
+        mothership.shape("mothership.gif")
+        mothership.penup()
+        mothership.speed(0)
+        mothership.setposition(-260, 260)
+        mothership.hideturtle()
+
+        mothershipspeed = 10
+        
+20) Moving the mothership at a certain score:
+
+        #Move the mothership
+        if score == 10:
+            mothership.showturtle()
+            x = mothership.xcor()
+            x+= mothershipspeed
+            mothership.setx(x)
+            
+21) Checking if the mothership has reached the border and making sure that disappears at the border: 
+
+
+         #Check if mothership has left the game(reached the other side of the border)
+            if mothership.xcor() > 250:
+                mothership.hideturtle() 
+            
+22) Check for collision between the player bullet and the mothership: 
+
+
+        if isCollision (bullet, mothership) :
+                    #Reset the bullet 
+                    bullet.hideturtle()
+                    bulletstate = "ready" 
+                    bullet.setposition (0, -400) 
+                    os.system ("afplay explosion.mp3&") #without & the program will pause 
+                    mothership.hideturtle()
+                    #Draw the score 
+                    os.system ("afplay score.mp3&")
+                    score += 50
+                    scorestring = "Score: " + str(score)
+                    score_pen.clear()
+                    score_pen.write (scorestring, False, align = "left", font=("Arial",25, "normal"))
+
+Definitely, when we hit the mothership, we would want to make the player earn more points than hitting the normal invaders 
+
+23) Now that we have created the lives, mothership, enemy bullets, have a game over sign would be an interesting addition to the game to show that the user has lost. Similar to creating other turtles in the game, we need to register the shape of our "Game Over" sign of we are using a gif file from our folder:
+
+        turtle.register_shape ("gameover.gif")
+        
+We also have to create a condition where the "game over" sign will be shown:
+
+
+        
+    if isCollision (player, enemy) or number_lives == 0:
+        player.hideturtle()
+        enemy.hideturtle()
+        print ("Game over")
+        gameover = turtle.Turtle()
+        gameover.shape("gameover.gif")
+        gameover.speed(0)
+        gameover.setposition (0,0)
+        gameover.penup()
+        player.setposition (-400, 0)
+        break #will break us out of the main loop 
+
+
+
+
+    
+
+
+
+
+
+
+    
+
+    
         
         
  
